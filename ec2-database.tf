@@ -1,0 +1,159 @@
+provider "aws" {
+  region = "${var.aws_reg}"
+}
+
+resource "aws_key_pair" "keypair1" {
+  key_name   = "${var.stack}-keypairs"
+  public_key = "${file("${var.ssh_key}")}"
+}
+
+data "template_file" "phpconfig" {
+  #template = "$file(config.ini.tpl)"
+  template = "${file("conf.wp-config.php")}"
+
+  vars {
+    db_port = "${aws_db_instance.mysql.port}"
+    db_host = "${aws_db_instance.mysql.address}"
+    db_user = "${var.username}"
+    db_pass = "${var.password}"
+    db_name = "${var.dbname}"
+  }
+}
+
+resource "aws_db_instance" "mysql" {
+  allocated_storage      = 20
+  storage_type           = "gp2"
+  engine                 = "mysql"
+  engine_version         = "5.7"
+  instance_class         = "db.t2.micro"
+  name                   = "${var.dbname}"
+  username               = "${var.username}"
+  password               = "${var.password}"
+  parameter_group_name   = "default.mysql5.7"
+  vpc_security_group_ids = ["${aws_security_group.mysql.id}"]
+  db_subnet_group_name   = "${aws_db_subnet_group.mysql.name}"
+  skip_final_snapshot    = true
+}
+
+resource "aws_instance" "ec2" {
+  ami           = "${data.aws_ami.ubuntu.id}"
+  instance_type = "t2.micro"
+
+  depends_on = [
+    "aws_db_instance.mysql",
+  ]
+
+  key_name                    = "${aws_key_pair.keypair1.key_name}"
+  vpc_security_group_ids      = ["${aws_security_group.web.id}"]
+  subnet_id                   = "${aws_subnet.public1.id}"
+  associate_public_ip_address = true
+
+  user_data = "${file("userdata.sh")}"
+
+  tags {
+    Name = "EC2 Instance"
+  }
+
+  /*
+          connection {
+            type        = "ssh"
+            user        = "ubuntu"
+            private_key = "${file("~/.ssh/id_rsa")}"
+          }
+        */
+  provisioner "file" {
+    source      = "userdata.sh"
+    destination = "/tmp/userdata.sh"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = "${file("~/.ssh/id_rsa")}"
+    }
+  }
+
+  provisioner "file" {
+    content     = "${data.template_file.phpconfig.rendered}"
+    destination = "/tmp/wp-config.php"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = "${file("~/.ssh/id_rsa")}"
+    }
+  }
+
+  /*  provisioner "local-exec" {
+            command = "echo '${data.template_file.phpconfig.rendered}' > wp-config.php"
+          }
+        */
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/userdata.sh",
+      "/tmp/userdata.sh",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = "${file("~/.ssh/id_rsa")}"
+    }
+
+    timeouts {
+      create = "20m"
+    }
+  }
+}
+
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-trusty-14.04-amd64-server-*"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+//terraform remote backend
+terraform {
+  backend "s3" {
+    bucket  = "pavan-terraform-remote-state"
+    region  = "eu-west-2"
+    encrypt = true
+    key     = "terraform.tfstate"
+  }
+}
+
+//null resource to copy the file to ec2
+
+resource "null_resource" "phpconfig" {
+  triggers {
+    template_rendered = "${data.template_file.phpconfig.rendered}"
+  }
+
+  connection {
+    type        = "ssh"
+    user        = "ubuntu"
+    host        = "${aws_instance.ec2.public_ip}"
+    private_key = "${file("~/.ssh/id_rsa")}"
+  }
+
+  /*
+          provisioner "file" {
+            source      = "wp-config.php"
+            destination = "/tmp/wp-config.php"
+          }
+        */
+  provisioner "remote-exec" {
+    inline = [
+      "sudo cp /tmp/wp-config.php /var/www/html/wp-config.php",
+    ]
+  }
+}
