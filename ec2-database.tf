@@ -121,16 +121,6 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-//terraform remote backend
-terraform {
-  backend "s3" {
-    bucket  = "pavan-terraform-remote-state"
-    region  = "eu-west-2"
-    encrypt = true
-    key     = "terraform.tfstate"
-  }
-}
-
 //null resource to copy the file to ec2
 
 resource "null_resource" "phpconfig" {
