@@ -1,4 +1,4 @@
-Project
+What's this
 =========
 
 This is to set up wordpress using AWS infrastructure. We are using terraform to provision infrastructure. Code uses and creates following aws services.
