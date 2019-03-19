@@ -14,6 +14,6 @@ output "db" {
   value = "mysql -h ${aws_db_instance.mysql.address} -P ${aws_db_instance.mysql.port} -u ${var.username} -p${var.password}"
 }
 
-output "config" {
-  value = "define('DB_NAME', '${aws_db_instance.mysql.address}:${aws_db_instance.mysql.port}');"
+output "access" {
+  value = "http://${aws_instance.ec2.public_ip}/index.php"
 }

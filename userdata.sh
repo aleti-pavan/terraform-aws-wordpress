@@ -9,8 +9,10 @@ sudo apt-get install php5-mysqlnd-ms -y
 sudo service apache2 restart
 sudo wget -c http://wordpress.org/latest.tar.gz
 sudo tar -xzvf latest.tar.gz
+sleep 20
 sudo rsync -av wordpress/* /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 sudo chmod -R 755 /var/www/html/
 sudo cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
 sudo service apache2 restart
+sleep 20

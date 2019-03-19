@@ -8,7 +8,6 @@ resource "aws_key_pair" "keypair1" {
 }
 
 data "template_file" "phpconfig" {
-  #template = "$file(config.ini.tpl)"
   template = "${file("conf.wp-config.php")}"
 
   vars {
@@ -54,16 +53,22 @@ resource "aws_instance" "ec2" {
     Name = "EC2 Instance"
   }
 
-  /*
-          connection {
-            type        = "ssh"
-            user        = "ubuntu"
-            private_key = "${file("~/.ssh/id_rsa")}"
-          }
-        */
   provisioner "file" {
     source      = "userdata.sh"
     destination = "/tmp/userdata.sh"
+
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      private_key = "${file("~/.ssh/id_rsa")}"
+    }
+  }
+
+  provisioner "remote-exec" {
+    inline = [
+      "chmod +x /tmp/userdata.sh",
+      "/tmp/userdata.sh",
+    ]
 
     connection {
       type        = "ssh"
@@ -83,14 +88,9 @@ resource "aws_instance" "ec2" {
     }
   }
 
-  /*  provisioner "local-exec" {
-            command = "echo '${data.template_file.phpconfig.rendered}' > wp-config.php"
-          }
-        */
   provisioner "remote-exec" {
     inline = [
-      "chmod +x /tmp/userdata.sh",
-      "/tmp/userdata.sh",
+      "sudo cp /tmp/wp-config.php /var/www/html/wp-config.php",
     ]
 
     connection {
@@ -98,10 +98,10 @@ resource "aws_instance" "ec2" {
       user        = "ubuntu"
       private_key = "${file("~/.ssh/id_rsa")}"
     }
+  }
 
-    timeouts {
-      create = "20m"
-    }
+  timeouts {
+    create = "20m"
   }
 }
 
@@ -119,31 +119,4 @@ data "aws_ami" "ubuntu" {
   }
 
   owners = ["099720109477"] # Canonical
-}
-
-//null resource to copy the file to ec2
-
-resource "null_resource" "phpconfig" {
-  triggers {
-    template_rendered = "${data.template_file.phpconfig.rendered}"
-  }
-
-  connection {
-    type        = "ssh"
-    user        = "ubuntu"
-    host        = "${aws_instance.ec2.public_ip}"
-    private_key = "${file("~/.ssh/id_rsa")}"
-  }
-
-  /*
-          provisioner "file" {
-            source      = "wp-config.php"
-            destination = "/tmp/wp-config.php"
-          }
-        */
-  provisioner "remote-exec" {
-    inline = [
-      "sudo cp /tmp/wp-config.php /var/www/html/wp-config.php",
-    ]
-  }
 }

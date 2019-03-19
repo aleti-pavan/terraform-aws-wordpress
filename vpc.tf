@@ -26,7 +26,7 @@ resource "aws_nat_gateway" "nat" {
 }
 
 resource "aws_eip" "eip" {
-  #       id = "${aws_vpc.vpc.id}"
+
   vpc = true
 
   tags {
