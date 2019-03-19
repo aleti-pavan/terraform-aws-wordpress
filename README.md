@@ -1,7 +1,7 @@
 Project
 =========
 
-This is set up wordpress using AWS infrastructure. We are using terraform to provision infrastructure. Code uses and creates following aws services.
+This is to set up wordpress using AWS infrastructure. We are using terraform to provision infrastructure. Code uses and creates following aws services.
 
 1. VPC and it's contents
 2. Subnets, Route Tables, Internet Gateway, Nat Gateway.
