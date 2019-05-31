@@ -32,3 +32,10 @@ Destroying the Infra:
 1. cd terraform-aws-wordpress (Be in the repo directory)
 2. terraform destroy -auto-approve
 
+
+
+Change:
+------ 
+
+Code slightly changed on 31st May, 2019. 
+I have added providers.tf with versions required for each provider
