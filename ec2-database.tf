@@ -1,6 +1,3 @@
-provider "aws" {
-  region = "${var.aws_reg}"
-}
 
 resource "aws_key_pair" "keypair1" {
   key_name   = "${var.stack}-keypairs"
