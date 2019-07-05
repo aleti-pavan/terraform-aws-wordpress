@@ -10,6 +10,7 @@ sudo service apache2 restart
 sudo wget -c http://wordpress.org/wordpress-5.1.1.tar.gz
 sudo tar -xzvf wordpress-5.1.1.tar.gz
 sleep 20
+sudo mkdir -p /var/www/html/
 sudo rsync -av wordpress/* /var/www/html/
 sudo chown -R www-data:www-data /var/www/html/
 sudo chmod -R 755 /var/www/html/
