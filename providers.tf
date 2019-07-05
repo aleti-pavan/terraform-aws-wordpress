@@ -6,3 +6,7 @@ provider "aws" {
 provider "template" {
     version = "~> 2.1.2"
 }
+
+terraform {
+required_version = "v0.11.11"
+}
