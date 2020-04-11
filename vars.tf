@@ -1,7 +1,7 @@
 variable aws_reg {
   description = "This is aws region"
   default     = "eu-west-2"
-  type        = "string"
+  type        = string
 }
 
 variable stack {
