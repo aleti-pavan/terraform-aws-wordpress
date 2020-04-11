@@ -20,7 +20,7 @@ You may get charged by aws for using services
    1. You need to have Ssh keys generated and should be put into `~/.ssh/` , if your machine is windows then feel free to use diff path and update the same in the `ssh_key` variable in the `vars.tf`
 
    2. create an IAM user and create security credentials(AccessKey, SecretKey) and update in the `~/.aws/credentials` file like below
-   ![terraform-aws-profile](files/terraform-aws-profile.PNG)
+   ![terraform-aws-profile](files/terraform-aws-profile.png)
    
    __Note__ : if you have default profile, just erase the `profile` attribute in `provider.tf`
 
