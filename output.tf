@@ -1,5 +1,5 @@
 output "ami_id" {
-  value = "${data.aws_ami.ubuntu.id}"
+  value = data.aws_ami.ubuntu.id
 }
 
 output "Login" {
@@ -7,7 +7,7 @@ output "Login" {
 }
 
 output "azs" {
-  value = "${data.aws_availability_zones.azs.*.names}"
+  value = data.aws_availability_zones.azs.*.names
 }
 
 output "db_access_from_ec2" {

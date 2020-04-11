@@ -1,9 +1,9 @@
 resource aws_security_group "mysql" {
   name        = "${var.stack}-DBSG"
   description = "managed by terrafrom for db servers"
-  vpc_id      = "${aws_vpc.vpc.id}"
+  vpc_id      = aws_vpc.vpc.id
 
-  tags {
+  tags = {
     Name = "${var.stack}-DBSG"
   }
 
@@ -27,7 +27,7 @@ resource aws_security_group "web" {
   description = "This is for ${var.stack}s web servers security group"
   vpc_id      = "${aws_vpc.vpc.id}"
 
-  tags {
+  tags = {
     Name = "${var.stack}-webSG"
   }
 
@@ -42,7 +42,7 @@ resource aws_security_group "web" {
     protocol    = "icmp"
     from_port   = -1
     to_port     = -1
-    cidr_blocks = ["${aws_vpc.vpc.cidr_block}"]
+    cidr_blocks = [aws_vpc.vpc.cidr_block]
   }
 
   ingress {

@@ -15,6 +15,16 @@ Note:
 You may get charged by aws for using services
 
 
+### Pre-requisite:
+
+   1. You need to have Ssh keys generated and should be put into `~/.ssh/` , if your machine is windows then feel free to use diff path and update the same in the `ssh_key` variable in the `vars.tf`
+
+   2. create an IAM user and create security credentials(AccessKey, SecretKey) and update in the `~/.aws/credentials` file like below
+   ![terraform-aws-profile](files/terraform-aws-profile.PNG)
+   
+   __Note__ : if you have default profile, just erase the `profile` attribute in `provider.tf`
+
+
 Usage:
 =======
 
@@ -34,8 +44,18 @@ Destroying the Infra:
 
 
 
-Change:
+Change: (latest detail from top)
 ------ 
+
+Code has been changed on 11th April, 2020. Code is now compatible with below versions.
+
+Versions:
+--------
+Terraform v0.12.24
++ provider.aws v2.12.0
++ provider.template v2.1.2
+
+
 
 Code slightly changed on 31st May, 2019. 
 I have added providers.tf with versions required for each provider

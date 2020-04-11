@@ -1,6 +1,6 @@
 variable aws_reg {
   description = "This is aws region"
-  default     = "eu-west-1"
+  default     = "eu-west-2"
   type        = "string"
 }
 
@@ -23,5 +23,10 @@ variable dbname {
 
 variable ssh_key {
   default     = "~/.ssh/id_rsa.pub"
+  description = "Default pub key"
+}
+
+variable ssh_priv_key {
+  default     = "~/.ssh/id_rsa"
   description = "Default pub key"
 }
