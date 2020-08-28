@@ -28,5 +28,5 @@ variable ssh_key {
 
 variable ssh_priv_key {
   default     = "~/.ssh/id_rsa"
-  description = "Default pub key"
+  description = "Default private key"
 }
