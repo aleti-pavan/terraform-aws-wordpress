@@ -1,4 +1,9 @@
 
+# resource "aws_key_pair" "keypair1" {
+#   key_name   = "${var.stack}-keypairs"
+#   public_key = file(var.ssh_key)
+# }
+
 resource "aws_key_pair" "keypair1" {
   key_name   = "${var.stack}-keypairs"
   public_key = file(var.ssh_key)
@@ -39,12 +44,20 @@ resource "aws_instance" "ec2" {
     aws_db_instance.mysql,
   ]
 
-  key_name                    = aws_key_pair.keypair1.key_name
-  vpc_security_group_ids      = [aws_security_group.web.id]
-  subnet_id                   = aws_subnet.public1.id
+  # key_name                    = aws_key_pair.keypair1.key_name
+  # vpc_security_group_ids      = [aws_security_group.web.id]
+  # subnet_id                   = aws_subnet.public1.id
+  # associate_public_ip_address = true
+
+  # user_data = file("files/userdata.sh")
+
+  # key_name                    = "${aws_key_pair.keypair1.key_name}"
+  key_name                    = "wordpress"
+  vpc_security_group_ids      = ["${aws_security_group.web.id}"]
+  subnet_id                   = "${aws_subnet.public1.id}"
   associate_public_ip_address = true
 
-  user_data = file("files/userdata.sh")
+  user_data = "${file("files/userdata.sh")}"
 
   tags = {
     Name = "EC2 Instance"
