@@ -1,3 +1,3 @@
-username = "pavan"
-password = "pavan12345"
+username = "rkwakye"
+password = "rkwakye12345"
 dbname = "mydb"
