@@ -1,6 +1,6 @@
 variable aws_reg {
   description = "This is aws region"
-  default     = "eu-west-2"
+  default     = "us-east-1"
   type        = string
 }
 
@@ -27,6 +27,7 @@ variable ssh_key {
 }
 
 variable ssh_priv_key {
-  default     = "~/.ssh/id_rsa"
+  # default     = "~/.ssh/id_rsa"
+  default     = "~/.ssh/wordpress.pem"
   description = "Default private key"
 }

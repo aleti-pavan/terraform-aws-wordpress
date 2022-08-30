@@ -1,4 +1,9 @@
 
+# resource "aws_key_pair" "keypair1" {
+#   key_name   = "${var.stack}-keypairs"
+#   public_key = file(var.ssh_key)
+# }
+
 resource "aws_key_pair" "keypair1" {
   key_name   = "${var.stack}-keypairs"
   public_key = file(var.ssh_key)
@@ -39,12 +44,18 @@ resource "aws_instance" "ec2" {
     aws_db_instance.mysql,
   ]
 
-  key_name                    = aws_key_pair.keypair1.key_name
-  vpc_security_group_ids      = [aws_security_group.web.id]
-  subnet_id                   = aws_subnet.public1.id
+  # key_name                    = aws_key_pair.keypair1.key_name
+  # vpc_security_group_ids      = [aws_security_group.web.id]
+  # subnet_id                   = aws_subnet.public1.id
+  # associate_public_ip_address = true
+  # user_data = file("files/userdata.sh")
+  # key_name                    = "${aws_key_pair.keypair1.key_name}"
+  key_name                    = "wordpress"
+  vpc_security_group_ids      = ["${aws_security_group.web.id}"]
+  subnet_id                   = "${aws_subnet.public1.id}"
   associate_public_ip_address = true
 
-  user_data = file("files/userdata.sh")
+  user_data = "${file("files/userdata.sh")}"
 
   tags = {
     Name = "EC2 Instance"
@@ -105,6 +116,58 @@ resource "aws_instance" "ec2" {
     create = "20m"
   }
 }
+#############################################################################################################################
+#*****************************************Adding code for installing Nginx using Ansible ***********************************#
+#############################################################################################################################
+
+resource "aws_instance" "nginx" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.micro"
+  # ami                         = "ami-0dba2cb6798deb6d8"
+  # subnet_id                   = "subnet-060a1ae52cf0a73d6"
+  # associate_public_ip_address = true
+  # security_groups             = [aws_security_group.nginx.id]
+  
+  depends_on = [
+    aws_db_instance.mysql,
+  ]
+
+  key_name                    = "wordpress"
+  vpc_security_group_ids      = ["${aws_security_group.web.id}"]
+  subnet_id                   = "${aws_subnet.public1.id}"
+  associate_public_ip_address = true
+
+
+  provisioner "remote-exec" {
+    inline = ["echo 'Wait until SSH is ready'"]
+
+    # connection {
+    #   type        = "ssh"
+    #   user        = local.ssh_user
+    #   private_key = file(local.private_key_path)
+    #   host        = aws_instance.nginx.public_ip
+    # }
+    connection {
+      type        = "ssh"
+      user        = "ubuntu"
+      host = self.public_ip
+      private_key = file(var.ssh_priv_key)
+    }
+  }
+  provisioner "local-exec" {
+    # command = "ansible-playbook  -i ${aws_instance.nginx.public_ip}, --private-key ${local.private_key_path} nginx.yaml"
+    # private_key = file(var.ssh_priv_key)
+    command = "ansible-playbook -i ${aws_instance.nginx.public_ip}, --private-key ${(var.ssh_priv_key)} nginx.yaml"
+  }
+}
+
+output "nginx_ip" {
+  value = aws_instance.nginx.public_ip
+}
+
+  ##########################################################################################################################
+  ##########################################################################################################################
+
 
 data "aws_ami" "ubuntu" {
   most_recent = true
